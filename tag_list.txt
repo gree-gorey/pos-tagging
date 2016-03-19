@@ -1,0 +1,28 @@
+N:
+acc nom loc voc ins dat gen 
+du sg pl 
+V:
+1p 2p 3p 
+du sg pl 
+indic imper inf 
+perf praes imperf aor 
+f m n 
+Vbyt:
+1p 2p 3p 
+du sg pl 
+indic imper inf 
+perf praes imperf aor analyt
+A:
+acc nom ins loc dat gen 
+anim 
+comp brev 
+du sg pl
+f m n 
+N-PRO:
+acc nom loc ins dat gen 
+du sg pl
+A-PRO:
+acc nom ins loc dat gen 
+anim brev 
+f m n 
+du sg pl 
