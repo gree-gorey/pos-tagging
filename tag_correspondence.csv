@@ -1,13 +1,13 @@
-Moscow POS tag	TOROT POS tag(s)
-A	A-
-A-PRO	A-, Pd, Pi, Pr, Px
-ADV	Df
-ADV-PRO	Df, Du
-CONJ	C-, G-, Df
-CONJ/PART	Df, G-
-INTJ	I-
-N-PRO	Pi, Px
-NUM	Ma
-PART	Df
-PREP	R-
-V	V-
+Moscow POS tag,TOROT POS tag(s)
+A,"A-"
+A-PRO,"A-, Pd, Pi, Pr, Px"
+ADV,"Df"
+ADV-PRO,"Df, Du"
+CONJ,"C-, G-, Df"
+CONJ/PART,"Df, G-"
+INTJ,"I-"
+N-PRO,"Pi, Px"
+NUM,"Ma"
+PART,"Df"
+PREP,"R-"
+V,"V-"
