@@ -33,6 +33,7 @@ class Text:
 class Word:
     def __init__(self):
         self.content = None
+        self.index = None
         self.analyses = []
 
 
@@ -140,6 +141,7 @@ def parse_xml(tree, filename, path):
     words = tree.xpath('/xml/w')
     for word in words:
         new_word = Word()
+        new_word.index = int(word.xpath('./index')[0].get(u'i'))
         text.words.append(new_word)
         analyses = word.xpath('./ana')
         content = analyses[-1].tail
@@ -173,6 +175,18 @@ def parse_xml(tree, filename, path):
                 morphology = AdjectivalPronoun()
                 morphology.get_features(features)
                 new_analysis.morphology = morphology
+            elif new_analysis.pos == u'A-NUM':
+                new_analysis.pos = u'NUM'
+            elif new_analysis.pos == u'ADV-PRO':
+                new_analysis.pos = u'ADV'
+            elif new_analysis.pos == u'PRED':
+                new_analysis.pos = u'INTJ'
+            # else:
+            #     if new_analysis.pos not in d:
+            #         d[new_analysis.pos] = new_word.content
+
+    # for k, v in d.iteritems():
+    #     print k, '-->', v
 
 
 def main():

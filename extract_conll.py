@@ -16,11 +16,9 @@ RE_VERB = re.compile(u'(?:PERS(.))?\|?(?:NUMB(.))?\|?(?:TENS(.))?\|?(?:MOOD(.))?
 
 RE_ADJECTIVE = re.compile(u'NUMB(.)\|GEND(.)\|CASE(.)\|DEGR(.)\|STRE(.)', re.U)
 
-RE_N_PRO = re.compile(u'(N-PRO),?((?:sg)|(?:du)|(?:pl))?,?((?:acc)|(?:nom)|(?:loc)|(?:voc)|(?:ins)|(?:dat)|(?:gen))?',
-                      re.U)
+RE_N_PRO = re.compile(u'(?:PERS(.))?\|?NUMB(.)\|GEND(.)\|CASE(.)', re.U)
 
-RE_A_PRO = re.compile(u'(A-PRO),?((?:sg)|(?:du)|(?:pl))?,?(m|f|n)?,?((?:acc)|(?:nom)|(?:loc)|(?:voc)|(?:ins)|(?:dat)|'
-                      u'(?:gen))?,?(anim)?', re.U)
+RE_A_PRO = re.compile(u'(?:PERS(.))?\|?NUMB(.)\|GEND(.)\|CASE(.)', re.U)
 
 number = {u's': u'sg',
           u'd': u'du',
@@ -69,12 +67,14 @@ fullness = {u's': u'brev',
 class Text:
     def __init__(self):
         self.words = []
+        self.index = 0
 
 
 class Word:
     def __init__(self):
         self.content = None
         self.analyses = []
+        self.index = None
 
 
 class Analysis:
@@ -140,12 +140,25 @@ class Pronoun:
         self.number = None
         self.case = None
 
+    def get_features(self, features):
+        if features != u'INFLn':
+            morphology = re.search(RE_N_PRO, features)
+            self.number = number[morphology.group(2)]
+            self.case = case[morphology.group(4)]
+
 
 class AdjectivalPronoun:
     def __init__(self):
         self.number = None
         self.gender = None
         self.case = None
+
+    def get_features(self, features):
+        if features != u'INFLn':
+            morphology = re.search(RE_A_PRO, features)
+            self.number = number[morphology.group(2)]
+            self.gender = morphology.group(3)
+            self.case = case[morphology.group(4)]
 
 
 def read_files(path, extension):
@@ -165,7 +178,9 @@ def parse_conll(lines, filename, path):
     text = Text()
     for line in lines:
         if len(line) > 1:
+            text.index += 1
             new_word = Word()
+            new_word.index = text.index
             text.words.append(new_word)
             line = line.split(u'\t')
             new_word.content = line[1]
@@ -186,6 +201,30 @@ def parse_conll(lines, filename, path):
                 morphology = Adjective()
                 morphology.get_features(features)
                 new_analysis.morphology = morphology
+            elif new_analysis.pos == u'P':
+                if line[4] == u'Pp':
+                    new_analysis.pos = u'N-PRO'
+                    morphology = Pronoun()
+                    morphology.get_features(features)
+                    new_analysis.morphology = morphology
+                elif line[4] == u'Ps':
+                    new_analysis.pos = u'A-PRO'
+                    morphology = AdjectivalPronoun()
+                    morphology.get_features(features)
+                    new_analysis.morphology = morphology
+            elif new_analysis.pos == u'D':
+                if line[7] == u'adv':
+                    new_analysis.pos = u'ADV'
+                if line[7] == u'aux':
+                    new_analysis.pos = u'PART'
+            elif new_analysis.pos == u'M':
+                new_analysis.pos = u'NUM'
+            elif new_analysis.pos == u'R':
+                new_analysis.pos = u'PREP'
+            elif new_analysis.pos in u'CG':
+                new_analysis.pos = u'CONJ'
+            elif new_analysis.pos == u'I':
+                new_analysis.pos = u'INTJ'
 
 
 def main():
