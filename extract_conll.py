@@ -4,6 +4,7 @@ import os
 import re
 import time
 import codecs
+import pickle
 from lxml import etree
 
 __author__ = 'gree-gorey'
@@ -83,6 +84,14 @@ class Analysis:
         self.lemma = None
         self.morphology = None
 
+    def get_tag(self):
+        if self.morphology:
+            morphology_text = self.morphology.get_tag()
+            return u'Lemma:' + str('foo') + u' POS:' + str(self.pos) + u' Morpho:: ' + morphology_text
+        else:
+            return u'Lemma:' + str('foo') + u' POS:' + str(self.pos) + u' Morpho:: '
+        # return u'Lemma:' + str(self.lemma) + u' POS:' + str(self.pos) + u' Morpho:: ' + morphology_text
+
 
 class Noun:
     def __init__(self):
@@ -97,6 +106,11 @@ class Noun:
         self.number = number[morphology.group(1)]
         self.gender = morphology.group(2)
         self.case = case[morphology.group(3)]
+
+    def get_tag(self):
+        tag = u'Gender:' + str(self.gender) + u' Animacy:' + str(self.animacy) + u' Proper_name:'\
+              + str(self.proper_name) + u' Number:' + str(self.number) + u' Case: ' + str(self.case)
+        return tag
 
 
 class Verb:
@@ -118,6 +132,9 @@ class Verb:
         self.mood = mood[morphology.group(4)]
         self.voice = voice[morphology.group(5)]
 
+    def get_tag(self):
+        return u''
+
 
 class Adjective:
     def __init__(self):
@@ -134,6 +151,9 @@ class Adjective:
             self.case = case[morphology.group(3)]
             self.fullness = fullness[morphology.group(5)]
 
+    def get_tag(self):
+        return u''
+
 
 class Pronoun:
     def __init__(self):
@@ -145,6 +165,9 @@ class Pronoun:
             morphology = re.search(RE_N_PRO, features)
             self.number = number[morphology.group(2)]
             self.case = case[morphology.group(4)]
+
+    def get_tag(self):
+        return u''
 
 
 class AdjectivalPronoun:
@@ -159,6 +182,20 @@ class AdjectivalPronoun:
             self.number = number[morphology.group(2)]
             self.gender = morphology.group(3)
             self.case = case[morphology.group(4)]
+
+    def get_tag(self):
+        return u''
+
+
+class Other:
+    def __init__(self):
+        pass
+
+    def get_features(self, features):
+        pass
+
+    def get_tag(self):
+        return u''
 
 
 def read_files(path, extension):
@@ -212,26 +249,50 @@ def parse_conll(lines, filename, path):
                     morphology = AdjectivalPronoun()
                     morphology.get_features(features)
                     new_analysis.morphology = morphology
-            elif new_analysis.pos == u'D':
-                if line[7] == u'adv':
-                    new_analysis.pos = u'ADV'
-                if line[7] == u'aux':
-                    new_analysis.pos = u'PART'
-            elif new_analysis.pos == u'M':
-                new_analysis.pos = u'NUM'
-            elif new_analysis.pos == u'R':
-                new_analysis.pos = u'PREP'
-            elif new_analysis.pos in u'CG':
-                new_analysis.pos = u'CONJ'
-            elif new_analysis.pos == u'I':
-                new_analysis.pos = u'INTJ'
+            else:
+                morphology = Other()
+                new_analysis.morphology = morphology
+                if new_analysis.pos == u'D':
+                    if line[7] == u'adv':
+                        new_analysis.pos = u'ADV'
+                    if line[7] == u'aux':
+                        new_analysis.pos = u'PART'
+                elif new_analysis.pos == u'M':
+                    new_analysis.pos = u'NUM'
+                elif new_analysis.pos == u'R':
+                    new_analysis.pos = u'PREP'
+                elif new_analysis.pos in u'CG':
+                    new_analysis.pos = u'CONJ'
+                elif new_analysis.pos == u'I':
+                    new_analysis.pos = u'INTJ'
+
+    write_name = path + filename.replace(u'conll', u'p')
+    with codecs.open(write_name, u'w', u'utf-8') as w:
+        pickle.dump(text, w)
+
+
+def write_adjacent():
+    with open(u'./gold_into/gold.p', u'r') as f:
+        gold_text = pickle.load(f)
+
+    with open(u'./tested_into/tested.p', u'r') as f:
+        tested_text = pickle.load(f)
+
+    write_name = u'./result/adjacent.csv'
+    with codecs.open(write_name, u'w', u'utf-8') as w:
+        for word in gold_text.words:
+            print word.analyses[0].get_tag()
+            # if word.index in tested_text.words:
+            #     print word.index, word.content, tested_text.words[word.index].content
 
 
 def main():
     t1 = time.time()
 
-    for conll, filename in read_files(u'./gold_from/', u'conll'):
-        parse_conll(conll, filename, u'./gold_into/')
+    # for conll, filename in read_files(u'./gold_from/', u'conll'):
+    #     parse_conll(conll, filename, u'./gold_into/')
+
+    write_adjacent()
 
     t2 = time.time()
     print t2 - t1

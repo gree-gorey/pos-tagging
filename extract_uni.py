@@ -4,6 +4,7 @@ import os
 import re
 import time
 import codecs
+import pickle
 from lxml import etree
 
 __author__ = 'gree-gorey'
@@ -27,7 +28,7 @@ RE_A_PRO = re.compile(u'(A-PRO),?((?:sg)|(?:du)|(?:pl))?,?(m|f|n)?,?((?:acc)|(?:
 
 class Text:
     def __init__(self):
-        self.words = []
+        self.words = {}
 
 
 class Word:
@@ -142,7 +143,7 @@ def parse_xml(tree, filename, path):
     for word in words:
         new_word = Word()
         new_word.index = int(word.xpath('./index')[0].get(u'i'))
-        text.words.append(new_word)
+        text.words[new_word.index] = new_word
         analyses = word.xpath('./ana')
         content = analyses[-1].tail
         content = re.sub(u' +', u'', content, re.U)
@@ -181,12 +182,10 @@ def parse_xml(tree, filename, path):
                 new_analysis.pos = u'ADV'
             elif new_analysis.pos == u'PRED':
                 new_analysis.pos = u'INTJ'
-            # else:
-            #     if new_analysis.pos not in d:
-            #         d[new_analysis.pos] = new_word.content
 
-    # for k, v in d.iteritems():
-    #     print k, '-->', v
+    write_name = path + filename.replace(u'xml', u'p')
+    with codecs.open(write_name, u'w', u'utf-8') as w:
+        pickle.dump(text, w)
 
 
 def main():
