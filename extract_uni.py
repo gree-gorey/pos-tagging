@@ -4,7 +4,6 @@ import os
 import re
 import time
 import codecs
-import pickle
 from lxml import etree
 
 __author__ = 'gree-gorey'
@@ -15,6 +14,15 @@ RE_NOUN = re.compile(u'(N),?(m|f|n)?,?((?:anim)|(?:inan))?,?(persn)?,?((?:sg)|(?
 
 RE_VERB = re.compile(u'(V),?((?:ipf)|(?:pf))?,?((?:intr)|(?:tr))?,?(med)?,?(analyt)?,?((?:indic)|(?:imper)|(?:inf))?,?'
                      u'((?:aor)|(?:perf)|(?:praes)|(?:imperf))?,?((?:sg)|(?:du)|(?:pl))?,((?:1p)|(?:2p)|(?:3p))?', re.U)
+
+RE_ADJECTIVE = re.compile(u'(A),?((?:sg)|(?:du)|(?:pl))?,?(m|f|n)?,?((?:acc)|(?:nom)|(?:loc)|(?:voc)|(?:ins)|(?:dat)|'
+                          u'(?:gen))?,?((?:brev)|(?:comp))?,?(anim)?', re.U)
+
+RE_N_PRO = re.compile(u'(N-PRO),?((?:sg)|(?:du)|(?:pl))?,?((?:acc)|(?:nom)|(?:loc)|(?:voc)|(?:ins)|(?:dat)|(?:gen))?',
+                      re.U)
+
+RE_A_PRO = re.compile(u'(A-PRO),?((?:sg)|(?:du)|(?:pl))?,?(m|f|n)?,?((?:acc)|(?:nom)|(?:loc)|(?:voc)|(?:ins)|(?:dat)|'
+                      u'(?:gen))?,?(anim)?', re.U)
 
 
 class Text:
@@ -82,11 +90,23 @@ class Adjective:
         self.case = None
         self.fullness = None
 
+    def get_features(self, features):
+        morphology = re.search(RE_ADJECTIVE, features)
+        self.number = morphology.group(2)
+        self.gender = morphology.group(3)
+        self.case = morphology.group(4)
+        self.fullness = morphology.group(5)
+
 
 class Pronoun:
     def __init__(self):
         self.number = None
         self.case = None
+
+    def get_features(self, features):
+        morphology = re.search(RE_N_PRO, features)
+        self.number = morphology.group(2)
+        self.case = morphology.group(3)
 
 
 class AdjectivalPronoun:
@@ -94,6 +114,12 @@ class AdjectivalPronoun:
         self.number = None
         self.gender = None
         self.case = None
+
+    def get_features(self, features):
+        morphology = re.search(RE_A_PRO, features)
+        self.number = morphology.group(2)
+        self.gender = morphology.group(3)
+        self.case = morphology.group(4)
 
 
 def read_files(path, extension):
@@ -135,11 +161,18 @@ def parse_xml(tree, filename, path):
                 morphology = Verb()
                 morphology.get_features(features)
                 new_analysis.morphology = morphology
-            # print new_analysis.lemma, new_analysis.pos
-
-    # write_name = path + filename.replace(u'xml', u'p')
-    # with codecs.open(write_name, u'w', u'utf-8') as w:
-    #     pickle.dump(text, w)
+            elif new_analysis.pos == u'A':
+                morphology = Adjective()
+                morphology.get_features(features)
+                new_analysis.morphology = morphology
+            elif new_analysis.pos == u'N-PRO':
+                morphology = Pronoun()
+                morphology.get_features(features)
+                new_analysis.morphology = morphology
+            elif new_analysis.pos == u'A-PRO':
+                morphology = AdjectivalPronoun()
+                morphology.get_features(features)
+                new_analysis.morphology = morphology
 
 
 def main():
