@@ -87,10 +87,9 @@ class Analysis:
     def get_tag(self):
         if self.morphology:
             morphology_text = self.morphology.get_tag()
-            return u'Lemma:' + str('foo') + u' POS:' + str(self.pos) + u' Morpho:: ' + morphology_text
+            return u'Lemma:' + unicode(self.lemma) + u' POS:' + str(self.pos) + u' !Morpho! ' + morphology_text
         else:
-            return u'Lemma:' + str('foo') + u' POS:' + str(self.pos) + u' Morpho:: '
-        # return u'Lemma:' + str(self.lemma) + u' POS:' + str(self.pos) + u' Morpho:: ' + morphology_text
+            return u'Lemma:' + unicode(self.lemma) + u' POS:' + str(self.pos) + u' !Morpho! '
 
 
 class Noun:
@@ -108,8 +107,7 @@ class Noun:
         self.case = case[morphology.group(3)]
 
     def get_tag(self):
-        tag = u'Gender:' + str(self.gender) + u' Animacy:' + str(self.animacy) + u' Proper_name:'\
-              + str(self.proper_name) + u' Number:' + str(self.number) + u' Case: ' + str(self.case)
+        tag = u'Gender:' + str(self.gender) + u' Number:' + str(self.number) + u' Case:' + str(self.case)
         return tag
 
 
@@ -133,7 +131,9 @@ class Verb:
         self.voice = voice[morphology.group(5)]
 
     def get_tag(self):
-        return u''
+        tag = u'Person:' + str(self.person) + u' Number:' + str(self.number) + u' Tense:'\
+              + str(self.tense) + u' Mood:' + str(self.mood) + u' Voice:' + str(self.voice)
+        return tag
 
 
 class Adjective:
@@ -152,7 +152,9 @@ class Adjective:
             self.fullness = fullness[morphology.group(5)]
 
     def get_tag(self):
-        return u''
+        tag = u'Gender:' + str(self.gender) + u' Number:' + str(self.number) + u' Case:' + str(self.case)\
+              + u' Fullness:' + str(self.fullness)
+        return tag
 
 
 class Pronoun:
@@ -167,7 +169,8 @@ class Pronoun:
             self.case = case[morphology.group(4)]
 
     def get_tag(self):
-        return u''
+        tag = u'Number:' + str(self.number) + u' Case:' + str(self.case)
+        return tag
 
 
 class AdjectivalPronoun:
@@ -184,7 +187,8 @@ class AdjectivalPronoun:
             self.case = case[morphology.group(4)]
 
     def get_tag(self):
-        return u''
+        tag = u'Gender:' + str(self.gender) + u' Number:' + str(self.number) + u' Case:' + str(self.case)
+        return tag
 
 
 class Other:
@@ -280,10 +284,23 @@ def write_adjacent():
 
     write_name = u'./result/adjacent.csv'
     with codecs.open(write_name, u'w', u'utf-8') as w:
-        for word in gold_text.words:
-            print word.analyses[0].get_tag()
-            # if word.index in tested_text.words:
-            #     print word.index, word.content, tested_text.words[word.index].content
+        for i, word in enumerate(gold_text.words):
+            # w.write(word.content + u'\n')
+            # print word.content
+            # print word.analyses[0].lemma
+            # print word.analyses[0].get_tag()
+            if word.index in tested_text.words:
+                first_line = str(word.index) + u'\t' + word.content + u'\t'\
+                             + tested_text.words[word.index].analyses[0].get_tag() + u'\t' + word.analyses[0].get_tag()\
+                             + u'\n'
+                w.write(first_line)
+                for analysis in tested_text.words[word.index].analyses[1::]:
+                    line = u'\t\t' + tested_text.words[word.index].analyses[0].get_tag() + u'\t\n'
+                    w.write(line)
+                # print word.analyses[0].get_tag(), tested_text.words[word.index].analyses[0].get_tag()
+
+                if i > 50:
+                    break
 
 
 def main():
