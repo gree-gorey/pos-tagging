@@ -20,6 +20,7 @@ def write_adjacent():
             # print word.analyses[0].lemma
             # print word.analyses[0].get_tag()
             if word.index in tested_text.words:
+                # print word.content, tested_text.words[word.index].content
                 first_line = str(word.index) + u',' + word.content + u','\
                              + tested_text.words[word.index].analyses[0].get_tag() + u',' + word.analyses[0].get_tag()\
                              + u'\n'
@@ -29,8 +30,8 @@ def write_adjacent():
                     w.write(line)
                 # print word.analyses[0].get_tag(), tested_text.words[word.index].analyses[0].get_tag()
 
-                if i > 50:
-                    break
+                # if i > 50:
+                #     break
 
 
 def main():
