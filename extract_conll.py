@@ -275,41 +275,11 @@ def parse_conll(lines, filename, path):
         pickle.dump(text, w)
 
 
-def write_adjacent():
-    with open(u'./gold_into/gold.p', u'r') as f:
-        gold_text = pickle.load(f)
-
-    with open(u'./tested_into/tested.p', u'r') as f:
-        tested_text = pickle.load(f)
-
-    write_name = u'./result/adjacent.csv'
-    with codecs.open(write_name, u'w', u'utf-8') as w:
-        for i, word in enumerate(gold_text.words):
-            # w.write(word.content + u'\n')
-            # print word.content
-            # print word.analyses[0].lemma
-            # print word.analyses[0].get_tag()
-            if word.index in tested_text.words:
-                first_line = str(word.index) + u'\t' + word.content + u'\t'\
-                             + tested_text.words[word.index].analyses[0].get_tag() + u'\t' + word.analyses[0].get_tag()\
-                             + u'\n'
-                w.write(first_line)
-                for analysis in tested_text.words[word.index].analyses[1::]:
-                    line = u'\t\t' + tested_text.words[word.index].analyses[0].get_tag() + u'\t\n'
-                    w.write(line)
-                # print word.analyses[0].get_tag(), tested_text.words[word.index].analyses[0].get_tag()
-
-                if i > 50:
-                    break
-
-
 def main():
     t1 = time.time()
 
     # for conll, filename in read_files(u'./gold_from/', u'conll'):
     #     parse_conll(conll, filename, u'./gold_into/')
-
-    write_adjacent()
 
     t2 = time.time()
     print t2 - t1
