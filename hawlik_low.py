@@ -62,21 +62,44 @@ def inter_new(word):
 
 
 def modernize_oslo(word2):
-  word2 = word2.replace(u"ѣ", u"е")
-  word2 = word2.replace(u"кы", u"ки")
-  word2 = word2.replace(u"гы", u"ги")
-  word2 = word2.replace(u"хы", u"хи")
-  return word2 
+    word2 = word2.replace(u"ѣ", u"е")
+    word2 = word2.replace(u"кы", u"ки")
+    word2 = word2.replace(u"гы", u"ги")
+    word2 = word2.replace(u"хы", u"хи")
+    return word2
+
+def cluster_yers(word2):
+    word3 = word2.replace(u"чст", u"чест")
+    word3 = word3.replace(u"чск", u"ческ")
+    return word3
+
+
+def moscow_prefix_yers(word2):
+    if (word2[0] == u"в" or word2[0] == u"с") and word2[1] == u"о" and len(word2) > 4:
+        word2 = word2[0] + u'ъ' + word2[2:]
+    return word2
 
 
 def indent(goldlemma, unilemma):
     goldlemma = letterchange(goldlemma)
     goldlemma = hawlik_low(goldlemma)
+    goldlemma = cluster_yers(goldlemma)
     goldlemma = samelettter(goldlemma)
     goldlemma = modernize_oslo(goldlemma)
     unilemma = letterchange(unilemma)
+    unilemma = moscow_prefix_yers(unilemma)
     unilemma = inter_new(unilemma)
+    unilemma = unilemma.replace(u'зс', u'сс')
     unilemma = samelettter(unilemma)
+    unilemma = unilemma.replace(u'жде', u'же')
+    if unilemma == u"сеи":
+        unilemma = u"сии"
+    if unilemma == u"тои":
+        unilemma = u"тыи"
+    if unilemma == u"перед":
+        unilemma = u"пред"
+    if unilemma == u"писати":
+        unilemma = u"псати"
     if unilemma == goldlemma:
         return True
     return False
@@ -88,3 +111,4 @@ print hawlik_low(word)
 word = u'отьца'
 print hawlik_low(word)
 print indent(u'отьць', u'отець')
+print moscow_prefix_yers(u'состояние')
