@@ -2,10 +2,21 @@
 import re
 import codecs
 
+def samelettter(word):
+    word = word.replace(u'нн', u'н')
+    word = word.replace(u'сс', u'с')
+    word = word.replace(u'жж', u'ж')
+    word = word.replace(u'зз', u'з')
+    word = word.replace(u'вв', u'в')
+    word = word.replace(u'тт', u'т')
+    word = word.replace(u'лл', u'л')
+    word = word.replace(u'дд', u'д')
+    return word
+
 def hawlik_low(word):
     isodd = False
     word = list(word)
-    vowels = list(u'уеыаоэяию')
+    vowels = list(u'уеыаѣоэяию')
     for i in xrange(len(word)):
         li = len(word) - i -1
         if word[li] in vowels:
@@ -49,11 +60,23 @@ def inter_new(word):
         newword = newword[:-1]
     return newword
 
+
+def modernize_oslo(word2):
+  word2 = word2.replace(u"ѣ", u"е")
+  word2 = word2.replace(u"кы", u"ки")
+  word2 = word2.replace(u"гы", u"ги")
+  word2 = word2.replace(u"хы", u"хи")
+  return word2 
+
+
 def indent(goldlemma, unilemma):
     goldlemma = letterchange(goldlemma)
     goldlemma = hawlik_low(goldlemma)
+    goldlemma = samelettter(goldlemma)
+    goldlemma = modernize_oslo(goldlemma)
     unilemma = letterchange(unilemma)
     unilemma = inter_new(unilemma)
+    unilemma = samelettter(unilemma)
     if unilemma == goldlemma:
         return True
     return False
