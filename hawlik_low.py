@@ -43,11 +43,17 @@ def letterchange(word):
     newword = newword.replace(u'ѧ', u'я')
     return newword
 
+def inter_new(word):
+    newword = re.sub(u'([цкнгшщзхфвпрлджчсмтб])(ь|ъ)([цкнгшщзхфвпрлджчсмтб])', u'\\1\\3', word)
+    if newword[-1] == u'ь' or newword[-1] == u'ъ':
+        newword = newword[:-1]
+    return newword
 
 def indent(goldlemma, unilemma):
     goldlemma = letterchange(goldlemma)
     goldlemma = hawlik_low(goldlemma)
     unilemma = letterchange(unilemma)
+    unilemma = inter_new(unilemma)
     if unilemma == goldlemma:
         return True
     return False
@@ -58,3 +64,4 @@ word = u'отьць'
 print hawlik_low(word)
 word = u'отьца'
 print hawlik_low(word)
+print indent(u'отьць', u'отець')
