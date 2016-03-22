@@ -21,6 +21,37 @@ def hawlik_low(word):
     word = u''.join(word)
     return word
 
+
+def letterchange(word):
+    newword = word
+    newword = newword.replace(u'i', u'и')
+    newword = newword.replace(u'і', u'и')
+    newword = newword.replace(u'ѡ', u'о')
+    newword = newword.replace(u'є', u'e')
+    newword = newword.replace(u'́', u'')
+    newword = newword.replace(u'́', u'')
+    newword = newword.replace(u'ѵ', u'и')
+    newword = newword.replace(u'̂', u'')
+    newword = newword.replace(u'ѻ', u'о')
+    newword = newword.replace(u'ѳ', u'ф')
+    newword = newword.replace(u'ѯ', u'кс')
+    newword = newword.replace(u'ѱ', u'пс')
+    newword = newword.replace(u'ѕ', u'з')
+    newword = newword.replace(u'ѣ', u'е')
+    newword = newword.replace(u'ꙋ', u'у')
+    newword = newword.replace(u'ꙗ', u'я')
+    newword = newword.replace(u'ѧ', u'я')
+    return newword
+
+
+def indent(goldlemma, unilemma):
+    goldlemma = letterchange(goldlemma)
+    goldlemma = hawlik_low(goldlemma)
+    unilemma = letterchange(unilemma)
+    if unilemma == goldlemma:
+        return True
+    return False
+
 word = u'сьрдьце'
 print hawlik_low(word)
 word = u'отьць'
